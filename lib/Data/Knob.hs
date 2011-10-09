@@ -8,7 +8,21 @@
 -- Maintainer: jmillikin@gmail.com
 -- Portability: GHC only
 --
--- Create memory-backed 'Handle's.
+-- Create memory-backed 'IO.Handle's, referencing virtual files. This is
+-- mostly useful for testing 'IO.Handle'-based APIs without having to
+-- interact with the filesystem.
+--
+-- > import Data.ByteString (pack)
+-- > import Data.Knob
+-- > import System.IO
+-- >
+-- > main = do
+-- >     knob <- newKnob (pack [])
+-- >     h <- newFileHandle knob "test.txt" WriteMode
+-- >     hPutStrLn h "Hello world!"
+-- >     hClose h
+-- >     bytes <- Data.Knob.getContents knob
+-- >     putStrLn ("Wrote bytes: " ++ show bytes)
 module Data.Knob
 	( Knob
 	, newKnob
@@ -33,7 +47,13 @@ import qualified GHC.IO.Exception as IO
 import qualified GHC.IO.Handle as IO
 import qualified System.IO as IO
 
-data Knob = Knob (MVar.MVar ByteString)
+-- | A knob is a basic virtual file, which contains a byte buffer. A knob can
+-- have multiple 'Handle's open to it, each of which behaves like a standard
+-- file handle.
+--
+-- Use 'getContents' and 'setContents' to inspect and modify the knob's byte
+-- buffer.
+newtype Knob = Knob (MVar.MVar ByteString)
 
 data Device = Device IO.IOMode (MVar.MVar ByteString) (MVar.MVar Int)
 	deriving (Typeable)
@@ -138,7 +158,11 @@ getContents (Knob var) = MVar.readMVar var
 setContents :: Knob -> ByteString -> IO ()
 setContents (Knob var) bytes = MVar.modifyMVar_ var (\_ -> return bytes)
 
-newFileHandle :: Knob -> String -> IO.IOMode -> IO IO.Handle
+-- | Create a new 'IO.Handle' pointing to a 'Knob'. This handle behaves like
+-- a file-backed handle for most purposes.
+newFileHandle :: Knob
+              -> String -- ^ Filename shown in error messages
+              -> IO.IOMode -> IO IO.Handle
 newFileHandle (Knob var) name mode = do
 	startPosition <- MVar.withMVar var $ \bytes -> return $ case mode of
 		IO.AppendMode -> Data.ByteString.length bytes
