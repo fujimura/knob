@@ -56,6 +56,7 @@ test_File = suite "file"
 	, test_Ready
 	, test_Close
 	, test_SetContents
+	, test_WithFileHandle
 	]
 
 test_ReadFromStart :: Suite
@@ -319,6 +320,19 @@ test_SetContents = assertions "setContents" $ do
 	
 	$expect (equal before "abcde")
 	$expect (equal after "foo")
+
+test_WithFileHandle :: Suite
+test_WithFileHandle = assertions "withFileHandle" $ do
+	k <- liftIO $ newKnob ""
+	h <- liftIO $ withFileHandle k "test.txt" WriteMode $ \h -> do
+		Data.ByteString.hPut h "abcde"
+		return h
+	
+	bytes <- liftIO $ Data.Knob.getContents k
+	$expect (equal bytes "abcde")
+	
+	closed <- liftIO $ hIsClosed h
+	$expect closed
 
 test_Duplex :: Suite
 test_Duplex = suite "duplex" []

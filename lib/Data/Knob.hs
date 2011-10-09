@@ -30,10 +30,11 @@ module Data.Knob
 	, setContents
 	
 	, newFileHandle
+	, withFileHandle
 	) where
 
 import qualified Control.Concurrent.MVar as MVar
-import           Control.Exception (throwIO)
+import           Control.Exception (bracket, throwIO)
 import           Control.Monad (when)
 import qualified Data.ByteString
 import           Data.ByteString (ByteString)
@@ -169,3 +170,9 @@ newFileHandle (Knob var) name mode = do
 		_ -> 0
 	posVar <- MVar.newMVar startPosition
 	IO.mkFileHandle (Device mode var posVar) name mode Nothing IO.noNewlineTranslation
+
+-- | See 'newFileHandle'.
+withFileHandle :: Knob
+               -> String -- ^ Filename shown in error messages.
+               -> IO.IOMode -> (IO.Handle -> IO a) -> IO a
+withFileHandle knob name mode io = bracket (newFileHandle knob name mode) IO.hClose io
