@@ -8,8 +8,8 @@
 -- Maintainer: jmillikin@gmail.com
 -- Portability: GHC only
 --
--- Create memory-backed 'IO.Handle's, referencing virtual files. This is
--- mostly useful for testing 'IO.Handle'-based APIs without having to
+-- Create memory&#8208;backed 'IO.Handle's, referencing virtual files. This is
+-- mostly useful for testing 'IO.Handle'&#8208;based APIs without having to
 -- interact with the filesystem.
 --
 -- > import Data.ByteString (pack)
@@ -50,11 +50,11 @@ import qualified GHC.IO.Handle as IO
 import qualified System.IO as IO
 
 -- | A knob is a basic virtual file, which contains a byte buffer. A knob can
--- have multiple 'Handle's open to it, each of which behaves like a standard
+-- have multiple 'IO.Handle's open to it, each of which behaves like a standard
 -- file handle.
 --
--- Use 'getContents' and 'setContents' to inspect and modify the knob's byte
--- buffer.
+-- Use 'getContents' and 'setContents' to inspect and modify the knob&#8217;s
+-- byte buffer.
 newtype Knob = Knob (MVar.MVar ByteString)
 
 data Device = Device IO.IOMode (MVar.MVar ByteString) (MVar.MVar Int)
