@@ -36,6 +36,7 @@ module Data.Knob
 import qualified Control.Concurrent.MVar as MVar
 import           Control.Exception (bracket, throwIO)
 import           Control.Monad (when)
+import           Control.Monad.IO.Class (MonadIO, liftIO)
 import qualified Data.ByteString
 import           Data.ByteString (ByteString)
 import           Data.ByteString.Unsafe (unsafeUseAsCStringLen)
@@ -148,23 +149,24 @@ instance IO.BufferedIO Device where
 		newBuf <- IO.flushWriteBuffer dev buf
 		return (IO.bufR buf - IO.bufL buf, newBuf)
 
-newKnob :: ByteString -> IO Knob
+newKnob :: MonadIO m => ByteString -> m Knob
 newKnob bytes = do
-	var <- MVar.newMVar bytes
+	var <- liftIO (MVar.newMVar bytes)
 	return (Knob var)
 
-getContents :: Knob -> IO ByteString
-getContents (Knob var) = MVar.readMVar var
+getContents :: MonadIO m => Knob -> m ByteString
+getContents (Knob var) = liftIO (MVar.readMVar var)
 
-setContents :: Knob -> ByteString -> IO ()
-setContents (Knob var) bytes = MVar.modifyMVar_ var (\_ -> return bytes)
+setContents :: MonadIO m => Knob -> ByteString -> m ()
+setContents (Knob var) bytes = liftIO (MVar.modifyMVar_ var (\_ -> return bytes))
 
 -- | Create a new 'IO.Handle' pointing to a 'Knob'. This handle behaves like
 -- a file-backed handle for most purposes.
-newFileHandle :: Knob
+newFileHandle :: MonadIO m
+              => Knob
               -> String -- ^ Filename shown in error messages
-              -> IO.IOMode -> IO IO.Handle
-newFileHandle (Knob var) name mode = do
+              -> IO.IOMode -> m IO.Handle
+newFileHandle (Knob var) name mode = liftIO $ do
 	startPosition <- MVar.withMVar var $ \bytes -> return $ case mode of
 		IO.AppendMode -> Data.ByteString.length bytes
 		_ -> 0
@@ -172,7 +174,8 @@ newFileHandle (Knob var) name mode = do
 	IO.mkFileHandle (Device mode var posVar) name mode Nothing IO.noNewlineTranslation
 
 -- | See 'newFileHandle'.
-withFileHandle :: Knob
+withFileHandle :: MonadIO m
+               => Knob
                -> String -- ^ Filename shown in error messages.
-               -> IO.IOMode -> (IO.Handle -> IO a) -> IO a
-withFileHandle knob name mode io = bracket (newFileHandle knob name mode) IO.hClose io
+               -> IO.IOMode -> (IO.Handle -> IO a) -> m a
+withFileHandle knob name mode io = liftIO (bracket (newFileHandle knob name mode) IO.hClose io)

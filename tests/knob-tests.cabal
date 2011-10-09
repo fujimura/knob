@@ -16,7 +16,7 @@ executable knob_tests
     ghc-options: -fhpc
 
   build-depends:
-      base > 3 && < 5
-    , bytestring
+      base >= 4.2 && < 5.0
+    , bytestring >= 0.9 && < 0.10
     , chell >= 0.2 && < 0.3
-    , transformers
+    , transformers >= 0.2 && < 0.3

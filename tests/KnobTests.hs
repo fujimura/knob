@@ -61,8 +61,8 @@ test_File = suite "file"
 
 test_ReadFromStart :: Suite
 test_ReadFromStart = assertions "from-start" $ do
-	k <- liftIO $ newKnob "abcde"
-	h <- liftIO $ newFileHandle k "foo.txt" ReadMode
+	k <- newKnob "abcde"
+	h <- newFileHandle k "foo.txt" ReadMode
 	
 	bytes <- liftIO $ Data.ByteString.hGet h 3
 	$expect (equal bytes "abc")
@@ -72,8 +72,8 @@ test_ReadFromStart = assertions "from-start" $ do
 
 test_ReadFromOffset :: Suite
 test_ReadFromOffset = assertions "from-offset" $ do
-	k <- liftIO $ newKnob "abcde"
-	h <- liftIO $ newFileHandle k "foo.txt" ReadMode
+	k <- newKnob "abcde"
+	h <- newFileHandle k "foo.txt" ReadMode
 	
 	liftIO $ hSeek h AbsoluteSeek 1
 	bytes <- liftIO $ Data.ByteString.hGet h 3
@@ -84,8 +84,8 @@ test_ReadFromOffset = assertions "from-offset" $ do
 
 test_ReadToEOF :: Suite
 test_ReadToEOF = assertions "to-eof" $ do
-	k <- liftIO $ newKnob "abcde"
-	h <- liftIO $ newFileHandle k "foo.txt" ReadMode
+	k <- newKnob "abcde"
+	h <- newFileHandle k "foo.txt" ReadMode
 	
 	bytes <- liftIO $ Data.ByteString.hGet h 10
 	$expect (equal bytes "abcde")
@@ -95,8 +95,8 @@ test_ReadToEOF = assertions "to-eof" $ do
 
 test_ReadPastEOF :: Suite
 test_ReadPastEOF = assertions "past-eof" $ do
-	k <- liftIO $ newKnob "abcde"
-	h <- liftIO $ newFileHandle k "foo.txt" ReadMode
+	k <- newKnob "abcde"
+	h <- newFileHandle k "foo.txt" ReadMode
 	
 	liftIO $ hSeek h AbsoluteSeek 10
 	bytes <- liftIO $ Data.ByteString.hGet h 10
@@ -107,52 +107,52 @@ test_ReadPastEOF = assertions "past-eof" $ do
 
 test_WriteFromStart :: Suite
 test_WriteFromStart = assertions "from-start" $ do
-	k <- liftIO $ newKnob ""
-	h <- liftIO $ newFileHandle k "foo.txt" WriteMode
+	k <- newKnob ""
+	h <- newFileHandle k "foo.txt" WriteMode
 	liftIO $ hSetBuffering h NoBuffering
 	
 	liftIO $ Data.ByteString.hPut h "abcde"
-	bytes <- liftIO $ Data.Knob.getContents k
+	bytes <- Data.Knob.getContents k
 	$expect (equal bytes "abcde")
 
 test_WriteFromOffset :: Suite
 test_WriteFromOffset = assertions "from-offset" $ do
-	k <- liftIO $ newKnob ""
-	h <- liftIO $ newFileHandle k "foo.txt" WriteMode
+	k <- newKnob ""
+	h <- newFileHandle k "foo.txt" WriteMode
 	liftIO $ hSetBuffering h NoBuffering
 	
 	liftIO $ Data.ByteString.hPut h "abcde"
 	liftIO $ hSeek h AbsoluteSeek 2
 	liftIO $ Data.ByteString.hPut h "abcde"
 	
-	bytes <- liftIO $ Data.Knob.getContents k
+	bytes <- Data.Knob.getContents k
 	$expect (equal bytes "ababcde")
 
 test_WritePastEOF :: Suite
 test_WritePastEOF = assertions "past-eof" $ do
-	k <- liftIO $ newKnob ""
-	h <- liftIO $ newFileHandle k "foo.txt" WriteMode
+	k <- newKnob ""
+	h <- newFileHandle k "foo.txt" WriteMode
 	liftIO $ hSetBuffering h NoBuffering
 	
 	liftIO $ hSeek h AbsoluteSeek 2
 	liftIO $ Data.ByteString.hPut h "abcde"
-	bytes <- liftIO $ Data.Knob.getContents k
+	bytes <- Data.Knob.getContents k
 	$expect (equal bytes "\0\0abcde")
 
 test_WriteAppended :: Suite
 test_WriteAppended = assertions "appended" $ do
-	k <- liftIO $ newKnob "foo"
-	h <- liftIO $ newFileHandle k "foo.txt" AppendMode
+	k <- newKnob "foo"
+	h <- newFileHandle k "foo.txt" AppendMode
 	liftIO $ hSetBuffering h NoBuffering
 	
 	liftIO $ Data.ByteString.hPut h "bar"
-	bytes <- liftIO $ Data.Knob.getContents k
+	bytes <- Data.Knob.getContents k
 	$expect (equal bytes "foobar")
 
 test_SeekAbsolute :: Suite
 test_SeekAbsolute = assertions "absolute" $ do
-	k <- liftIO $ newKnob ""
-	h <- liftIO $ newFileHandle k "foo.txt" ReadMode
+	k <- newKnob ""
+	h <- newFileHandle k "foo.txt" ReadMode
 	
 	before <- liftIO $ hTell h
 	liftIO $ hSeek h AbsoluteSeek 2
@@ -163,8 +163,8 @@ test_SeekAbsolute = assertions "absolute" $ do
 
 test_SeekRelative :: Suite
 test_SeekRelative = assertions "relative" $ do
-	k <- liftIO $ newKnob ""
-	h <- liftIO $ newFileHandle k "foo.txt" ReadMode
+	k <- newKnob ""
+	h <- newFileHandle k "foo.txt" ReadMode
 	
 	before <- liftIO $ hTell h
 	liftIO $ hSeek h RelativeSeek 2
@@ -178,8 +178,8 @@ test_SeekRelative = assertions "relative" $ do
 
 test_SeekFromEnd :: Suite
 test_SeekFromEnd = assertions "from-end" $ do
-	k <- liftIO $ newKnob "abcde"
-	h <- liftIO $ newFileHandle k "foo.txt" ReadMode
+	k <- newKnob "abcde"
+	h <- newFileHandle k "foo.txt" ReadMode
 	
 	before <- liftIO $ hTell h
 	liftIO $ hSeek h SeekFromEnd (- 2)
@@ -190,8 +190,8 @@ test_SeekFromEnd = assertions "from-end" $ do
 
 test_SeekBeyondMaxInt :: Suite
 test_SeekBeyondMaxInt = assertions "beyond-max-int" $ do
-	k <- liftIO $ newKnob "abcde"
-	h <- liftIO $ newFileHandle k "foo.txt" ReadMode
+	k <- newKnob "abcde"
+	h <- newFileHandle k "foo.txt" ReadMode
 	
 	let intPlusOne = toInteger (maxBound :: Int) + 1
 	
@@ -207,15 +207,15 @@ test_SeekBeyondMaxInt = assertions "beyond-max-int" $ do
 	-- internal buffer first.
 	hugeBytes <- liftIO (unsafePackCStringLen (nullPtr, maxBound))
 	liftIO $ hSeek h AbsoluteSeek (intPlusOne - 1)
-	liftIO $ setContents k hugeBytes
+	setContents k hugeBytes
 	$expect $ throwsEq
 		(GHC.IOError (Just h) GHC.InvalidArgument "hSeek" "offset > (maxBound :: Int)" Nothing (Just "foo.txt"))
 		(hSeek h SeekFromEnd 2)
 
 test_Ready :: Suite
 test_Ready = assertions "ready" $ do
-	k <- liftIO $ newKnob "abcde"
-	h <- liftIO $ newFileHandle k "foo.txt" ReadMode
+	k <- newKnob "abcde"
+	h <- newFileHandle k "foo.txt" ReadMode
 	
 	ready <- liftIO $ hReady h
 	$expect ready
@@ -227,8 +227,8 @@ test_Ready = assertions "ready" $ do
 
 test_Close :: Suite
 test_Close = assertions "close" $ do
-	k <- liftIO $ newKnob "abcde"
-	h <- liftIO $ newFileHandle k "foo.txt" ReadMode
+	k <- newKnob "abcde"
+	h <- newFileHandle k "foo.txt" ReadMode
 	
 	liftIO $ hClose h
 	$expect $ throwsEq
@@ -240,8 +240,8 @@ test_Close = assertions "close" $ do
 
 test_SetSize_Read :: Suite
 test_SetSize_Read = assertions "ReadMode" $ do
-	k <- liftIO $ newKnob "abcde"
-	h <- liftIO $ newFileHandle k "foo.txt" ReadMode
+	k <- newKnob "abcde"
+	h <- newFileHandle k "foo.txt" ReadMode
 	
 	let intPlusOne = toInteger (maxBound :: Int) + 1
 	$expect $ throwsEq
@@ -254,8 +254,8 @@ test_SetSize_Read = assertions "ReadMode" $ do
 
 test_SetSize_Write :: Suite
 test_SetSize_Write = assertions "WriteMode" $ do
-	k <- liftIO $ newKnob "abcde"
-	h <- liftIO $ newFileHandle k "foo.txt" WriteMode
+	k <- newKnob "abcde"
+	h <- newFileHandle k "foo.txt" WriteMode
 	
 	let intPlusOne = toInteger (maxBound :: Int) + 1
 	$expect $ throwsEq
@@ -266,13 +266,13 @@ test_SetSize_Write = assertions "WriteMode" $ do
 	liftIO $ hSeek h AbsoluteSeek 2
 	liftIO $ hSetFileSize h 4
 	
-	bytes <- liftIO $ Data.Knob.getContents k
+	bytes <- Data.Knob.getContents k
 	$expect (equal bytes "\0\0\0\0")
 
 test_SetSize_ReadWrite :: Suite
 test_SetSize_ReadWrite = assertions "ReadWriteMode" $ do
-	k <- liftIO $ newKnob "abcde"
-	h <- liftIO $ newFileHandle k "foo.txt" ReadWriteMode
+	k <- newKnob "abcde"
+	h <- newFileHandle k "foo.txt" ReadWriteMode
 	
 	let intPlusOne = toInteger (maxBound :: Int) + 1
 	$expect $ throwsEq
@@ -283,18 +283,18 @@ test_SetSize_ReadWrite = assertions "ReadWriteMode" $ do
 	do
 		liftIO $ hSeek h AbsoluteSeek 2
 		liftIO $ hSetFileSize h 4
-		bytes <- liftIO $ Data.Knob.getContents k
+		bytes <- Data.Knob.getContents k
 		$expect (equal bytes "abcd")
 	
 	do
 		liftIO $ hSetFileSize h 6
-		bytes <- liftIO $ Data.Knob.getContents k
+		bytes <- Data.Knob.getContents k
 		$expect (equal bytes "abcd\0\0")
 
 test_SetSize_Append :: Suite
 test_SetSize_Append = assertions "AppendMode" $ do
-	k <- liftIO $ newKnob "abcde"
-	h <- liftIO $ newFileHandle k "foo.txt" AppendMode
+	k <- newKnob "abcde"
+	h <- newFileHandle k "foo.txt" AppendMode
 	
 	let intPlusOne = toInteger (maxBound :: Int) + 1
 	$expect $ throwsEq
@@ -303,32 +303,32 @@ test_SetSize_Append = assertions "AppendMode" $ do
 	
 	do
 		liftIO $ hSetFileSize h 4
-		bytes <- liftIO $ Data.Knob.getContents k
+		bytes <- Data.Knob.getContents k
 		$expect (equal bytes "abcd")
 	
 	do
 		liftIO $ hSetFileSize h 6
-		bytes <- liftIO $ Data.Knob.getContents k
+		bytes <- Data.Knob.getContents k
 		$expect (equal bytes "abcd\0\0")
 
 test_SetContents :: Suite
 test_SetContents = assertions "setContents" $ do
-	k <- liftIO $ newKnob "abcde"
-	before <- liftIO $ Data.Knob.getContents k
-	liftIO $ setContents k "foo"
-	after <- liftIO $ Data.Knob.getContents k
+	k <- newKnob "abcde"
+	before <- Data.Knob.getContents k
+	setContents k "foo"
+	after <- Data.Knob.getContents k
 	
 	$expect (equal before "abcde")
 	$expect (equal after "foo")
 
 test_WithFileHandle :: Suite
 test_WithFileHandle = assertions "withFileHandle" $ do
-	k <- liftIO $ newKnob ""
-	h <- liftIO $ withFileHandle k "test.txt" WriteMode $ \h -> do
+	k <- newKnob ""
+	h <- withFileHandle k "test.txt" WriteMode $ \h -> do
 		Data.ByteString.hPut h "abcde"
 		return h
 	
-	bytes <- liftIO $ Data.Knob.getContents k
+	bytes <- Data.Knob.getContents k
 	$expect (equal bytes "abcde")
 	
 	closed <- liftIO $ hIsClosed h
