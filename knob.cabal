@@ -13,7 +13,7 @@ bug-reports: mailto:jmillikin@gmail.com
 
 synopsis: Memory-backed handles
 description:
-  Create memory-backed 'IO.Handle's, referencing virtual files. This is
+  Create memory-backed 'Handle's, referencing virtual files. This is
   mostly useful for testing 'Handle'-based APIs without having to
   interact with the filesystem.
   .
