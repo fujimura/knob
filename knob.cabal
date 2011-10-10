@@ -29,6 +29,14 @@ description:
   >     bytes <- Data.Knob.getContents knob
   >     putStrLn ("Wrote bytes: " ++ show bytes)
 
+extra-source-files:
+  scripts/common.bash
+  scripts/run-coverage
+  scripts/run-tests
+  --
+  tests/knob-tests.cabal
+  tests/KnobTests.hs
+
 source-repository head
   type: bazaar
   location: https://john-millikin.com/software/knob/
