@@ -5,7 +5,7 @@ license-file: license.txt
 author: John Millikin <jmillikin@gmail.com>
 maintainer: John Millikin <jmillikin@gmail.com>
 build-type: Simple
-cabal-version: >= 1.6
+cabal-version: >= 1.8
 category: System
 stability: experimental
 homepage: https://john-millikin.com/software/knob/
@@ -57,3 +57,16 @@ library
 
   exposed-modules:
     Data.Knob
+
+test-suite test
+    type: exitcode-stdio-1.0
+    main-is: KnobTests.hs
+    build-depends:
+        base -any,
+        knob,
+        chell -any,
+        transformers,
+        bytestring -any
+    default-language: Haskell2010
+    hs-source-dirs: test
+    ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall
