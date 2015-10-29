@@ -23,40 +23,31 @@ spec = do
     k <- newKnob "abcde"
     h <- newFileHandle k "foo.txt" ReadMode
 
-    bytes <- Data.ByteString.hGet h 3
-    bytes `shouldBe` "abc"
+    Data.ByteString.hGet h 3 `shouldReturn` "abc"
 
-    off <- hTell h
-    off `shouldBe` 3
+    hTell h `shouldReturn` 3
 
   it "should read from offset" $ do
     k <- newKnob "abcde"
     h <- newFileHandle k "foo.txt" ReadMode
 
     hSeek h AbsoluteSeek 1
-    bytes <- Data.ByteString.hGet h 3
-    bytes `shouldBe` "bcd"
+    Data.ByteString.hGet h 3 `shouldReturn` "bcd"
 
-    off <- hTell h
-    off `shouldBe` 4
+    hTell h `shouldReturn` 4
 
   it "should read to EOF" $ do
     k <- newKnob "abcde"
     h <- newFileHandle k "foo.txt" ReadMode
 
-    bytes <- Data.ByteString.hGet h 10
-    bytes `shouldBe` "abcde"
-
-    off <- hTell h
-    off `shouldBe` 5
+    Data.ByteString.hGet h 10 `shouldReturn` "abcde"
+    hTell h `shouldReturn` 5
 
   it "should read past EOF" $ do
     k <- newKnob "abcde"
     h <- newFileHandle k "foo.txt" ReadMode
 
     hSeek h AbsoluteSeek 10
-    bytes <- Data.ByteString.hGet h 10
-    bytes `shouldBe` ""
+    Data.ByteString.hGet h 10 `shouldReturn` ""
 
-    off <- hTell h
-    off `shouldBe` 10
+    hTell h `shouldReturn` 10
