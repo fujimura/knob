@@ -30,12 +30,6 @@ test_File :: Suite
 test_File = suite "file" (fileTests ++ otherTests)
   where
     fileTests =  concatMap suiteTests
-      [ suite "file write"
-        [ test_WriteFromStart
-        , test_WriteFromOffset
-        , test_WritePastEOF
-        , test_WriteAppended
-        ]
       , suite "file seek"
         [ test_SeekAbsolute
         , test_SeekRelative
@@ -54,51 +48,6 @@ test_File = suite "file" (fileTests ++ otherTests)
                  , test_SetContents
                  , test_WithFileHandle
                  ]
-
-
-test_WriteFromStart :: Test
-test_WriteFromStart = assertions "from-start" $ do
-    k <- newKnob ""
-    h <- newFileHandle k "foo.txt" WriteMode
-    liftIO $ hSetBuffering h NoBuffering
-
-    liftIO $ Data.ByteString.hPut h "abcde"
-    bytes <- Data.Knob.getContents k
-    $expect (equal bytes "abcde")
-
-test_WriteFromOffset :: Test
-test_WriteFromOffset = assertions "from-offset" $ do
-    k <- newKnob ""
-    h <- newFileHandle k "foo.txt" WriteMode
-    liftIO $ hSetBuffering h NoBuffering
-
-    liftIO $ Data.ByteString.hPut h "abcde"
-    liftIO $ hSeek h AbsoluteSeek 2
-    liftIO $ Data.ByteString.hPut h "abcde"
-
-    bytes <- Data.Knob.getContents k
-    $expect (equal bytes "ababcde")
-
-test_WritePastEOF :: Test
-test_WritePastEOF = assertions "past-eof" $ do
-    k <- newKnob ""
-    h <- newFileHandle k "foo.txt" WriteMode
-    liftIO $ hSetBuffering h NoBuffering
-
-    liftIO $ hSeek h AbsoluteSeek 2
-    liftIO $ Data.ByteString.hPut h "abcde"
-    bytes <- Data.Knob.getContents k
-    $expect (equal bytes "\0\0abcde")
-
-test_WriteAppended :: Test
-test_WriteAppended = assertions "appended" $ do
-    k <- newKnob "foo"
-    h <- newFileHandle k "foo.txt" AppendMode
-    liftIO $ hSetBuffering h NoBuffering
-
-    liftIO $ Data.ByteString.hPut h "bar"
-    bytes <- Data.Knob.getContents k
-    $expect (equal bytes "foobar")
 
 test_SeekAbsolute :: Test
 test_SeekAbsolute = assertions "absolute" $ do

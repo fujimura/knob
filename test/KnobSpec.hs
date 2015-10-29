@@ -51,3 +51,39 @@ spec = do
     Data.ByteString.hGet h 10 `shouldReturn` ""
 
     hTell h `shouldReturn` 10
+
+  it "should write from start" $ do
+    k <- newKnob ""
+    h <- newFileHandle k "foo.txt" WriteMode
+    hSetBuffering h NoBuffering
+
+    Data.ByteString.hPut h "abcde"
+    Data.Knob.getContents k `shouldReturn` "abcde"
+
+  it "should write from offset" $ do
+    k <- newKnob ""
+    h <- newFileHandle k "foo.txt" WriteMode
+    hSetBuffering h NoBuffering
+
+    Data.ByteString.hPut h "abcde"
+    hSeek h AbsoluteSeek 2
+    Data.ByteString.hPut h "abcde"
+
+    Data.Knob.getContents k `shouldReturn` "ababcde"
+
+  it "should write past EOF" $ do
+    k <- newKnob ""
+    h <- newFileHandle k "foo.txt" WriteMode
+    hSetBuffering h NoBuffering
+
+    hSeek h AbsoluteSeek 2
+    Data.ByteString.hPut h "abcde"
+    Data.Knob.getContents k `shouldReturn`"\0\0abcde"
+
+  it "should write appended" $ do
+    k <- newKnob "foo"
+    h <- newFileHandle k "foo.txt" AppendMode
+    hSetBuffering h NoBuffering
+
+    Data.ByteString.hPut h "bar"
+    Data.Knob.getContents k `shouldReturn` "foobar"
