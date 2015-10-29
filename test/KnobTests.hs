@@ -30,13 +30,7 @@ test_File :: Suite
 test_File = suite "file" (fileTests ++ otherTests)
   where
     fileTests =  concatMap suiteTests
-      [ suite "file read"
-        [ test_ReadFromStart
-        , test_ReadFromOffset
-        , test_ReadToEOF
-        , test_ReadPastEOF
-        ]
-      , suite "file write"
+      [ suite "file write"
         [ test_WriteFromStart
         , test_WriteFromOffset
         , test_WritePastEOF
@@ -61,51 +55,6 @@ test_File = suite "file" (fileTests ++ otherTests)
                  , test_WithFileHandle
                  ]
 
-test_ReadFromStart :: Test
-test_ReadFromStart = assertions "from-start" $ do
-    k <- newKnob "abcde"
-    h <- newFileHandle k "foo.txt" ReadMode
-
-    bytes <- liftIO $ Data.ByteString.hGet h 3
-    $expect (equal bytes "abc")
-
-    off <- liftIO $ hTell h
-    $expect (equal off 3)
-
-test_ReadFromOffset :: Test
-test_ReadFromOffset = assertions "from-offset" $ do
-    k <- newKnob "abcde"
-    h <- newFileHandle k "foo.txt" ReadMode
-
-    liftIO $ hSeek h AbsoluteSeek 1
-    bytes <- liftIO $ Data.ByteString.hGet h 3
-    $expect (equal bytes "bcd")
-
-    off <- liftIO $ hTell h
-    $expect (equal off 4)
-
-test_ReadToEOF :: Test
-test_ReadToEOF = assertions "to-eof" $ do
-    k <- newKnob "abcde"
-    h <- newFileHandle k "foo.txt" ReadMode
-
-    bytes <- liftIO $ Data.ByteString.hGet h 10
-    $expect (equal bytes "abcde")
-
-    off <- liftIO $ hTell h
-    $expect (equal off 5)
-
-test_ReadPastEOF :: Test
-test_ReadPastEOF = assertions "past-eof" $ do
-    k <- newKnob "abcde"
-    h <- newFileHandle k "foo.txt" ReadMode
-
-    liftIO $ hSeek h AbsoluteSeek 10
-    bytes <- liftIO $ Data.ByteString.hGet h 10
-    $expect (equal bytes "")
-
-    off <- liftIO $ hTell h
-    $expect (equal off 10)
 
 test_WriteFromStart :: Test
 test_WriteFromStart = assertions "from-start" $ do
