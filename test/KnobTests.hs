@@ -30,7 +30,7 @@ test_File :: Suite
 test_File = suite "file" (fileTests ++ otherTests)
   where
     fileTests =  concatMap suiteTests
-      , suite "file seek"
+      [ suite "file seek"
         [ test_SeekAbsolute
         , test_SeekRelative
         , test_SeekFromEnd
